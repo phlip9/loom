@@ -136,6 +136,18 @@ impl AtomicBool {
     {
         self.try_update(set_order, fetch_order, f)
     }
+
+    /// Fetches the value, and applies a function to it that returns a new value. The new value
+    /// is stored and the old value is returned.
+    #[track_caller]
+    pub fn update(
+        &self,
+        set_order: Ordering,
+        fetch_order: Ordering,
+        f: impl FnMut(bool) -> bool,
+    ) -> bool {
+        self.0.update(set_order, fetch_order, f)
+    }
 }
 
 impl Default for AtomicBool {
