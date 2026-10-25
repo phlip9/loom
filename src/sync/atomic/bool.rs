@@ -113,6 +113,18 @@ impl AtomicBool {
     /// a [`Result`] of [`Ok`]`(previous_value)` if the function returned [`Some`]`(_)`, else
     /// [`Err`]`(previous_value)`.
     #[track_caller]
+    pub fn try_update(
+        &self,
+        set_order: Ordering,
+        fetch_order: Ordering,
+        f: impl FnMut(bool) -> Option<bool>,
+    ) -> Result<bool, bool> {
+        self.0.try_update(set_order, fetch_order, f)
+    }
+
+    // TODO: Mark `#[deprecated]` once MSRV >= 1.99, to match std.
+    /// An alias for [`try_update`](Self::try_update).
+    #[track_caller]
     pub fn fetch_update<F>(
         &self,
         set_order: Ordering,
@@ -122,7 +134,7 @@ impl AtomicBool {
     where
         F: FnMut(bool) -> Option<bool>,
     {
-        self.0.fetch_update(set_order, fetch_order, f)
+        self.try_update(set_order, fetch_order, f)
     }
 }
 
